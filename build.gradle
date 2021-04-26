@@ -1,0 +1,46 @@
+/*
+ * Copyright (C) 2021 xiaoxiao(1018982338@qq.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    apply from: './versions.gradle'
+    addRepos(repositories) //增加代码仓库
+    dependencies {
+        classpath deps.android_gradle_plugin
+        classpath deps.android_maven_gradle_plugin
+
+        classpath 'com.chenenyu:img-optimizer:1.2.0' // 图片压缩
+        //美团多渠道打包
+        classpath 'com.meituan.android.walle:plugin:1.1.6'
+        //滴滴的质量优化框架
+        if (isNeedPackage.toBoolean() && isUseBooster.toBoolean()) {
+            classpath deps.booster.gradle_plugin
+            classpath deps.booster.task_processed_res
+            classpath deps.booster.task_resource_deredundancy
+        }
+    }
+}
+
+allprojects {
+    addRepos(repositories)
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
