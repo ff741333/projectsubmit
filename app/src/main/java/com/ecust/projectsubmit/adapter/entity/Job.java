@@ -56,7 +56,7 @@ public class Job {
     /**
      * 是否完成此作业
      */
-    private boolean Status;
+    private int Status;
 
 
     public Job(int id, String title, int type, String duedata, String createdate,int count){
@@ -121,11 +121,11 @@ public class Job {
         return this;
     }
 
-    public boolean isStatus() {
+    public int getStatus() {
         return Status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(int status) {
         this.Status = status;
     }
 

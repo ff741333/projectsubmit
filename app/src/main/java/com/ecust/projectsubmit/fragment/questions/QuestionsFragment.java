@@ -17,6 +17,7 @@
 
 package com.ecust.projectsubmit.fragment.questions;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -73,9 +74,11 @@ public class QuestionsFragment extends BaseFragment {
     @BindView(R.id.spinner_answer)
     MaterialSpinner spinneranswer;
 
+    private TextView correctanswer;
+
 
     int idjob;
-    boolean finished;
+    int finished;
 
     private String[] mHeaders = {"题号"};
     private List<View> mPopupViews = new ArrayList<>();
@@ -103,7 +106,7 @@ public class QuestionsFragment extends BaseFragment {
         });
 
         //未完成可以提交
-        if(!finished){
+        if(finished == 0){
             titleBar.addAction(new TitleBar.TextAction("提交") {
                 @SingleClick
                 @Override
@@ -114,6 +117,10 @@ public class QuestionsFragment extends BaseFragment {
                             getString(R.string.lab_yes),
                             (dialog, which) -> {
                                 XToastUtils.toast("同意提交！");
+                                submit();
+                                Intent intent = new Intent();
+                                intent.putExtra("idjob", idjob);
+                                setFragmentResult(500, intent);
                                 dialog.dismiss();
                                 handleBackPressed();
                             },
@@ -135,7 +142,7 @@ public class QuestionsFragment extends BaseFragment {
         Bundle arguments = getArguments();
         if(arguments != null){
             idjob = arguments.getInt("IDJOB"); //获取JobFragment传过来的IDJOB
-            finished = arguments.getBoolean("status");
+            finished = arguments.getInt("status");
         }
 
         //请求当前用户的课程
@@ -155,6 +162,11 @@ public class QuestionsFragment extends BaseFragment {
                                 i++;
                             }
                             mConstellationAdapter.setData(mQuestionsNo);
+                            setQuestion(mQuestionsID[0]);
+                            mConstellationAdapter.setSelectPosition(0);
+                            LinearLayout mTabMenuView = (LinearLayout) mDropDownMenu.getChildAt(0);
+                            TextView textView = (TextView) mTabMenuView.getChildAt(0);
+                            textView.setText("第1题");
                         } else {
                             ToastUtils.toast("题目请求失败！");
                         }
@@ -171,11 +183,15 @@ public class QuestionsFragment extends BaseFragment {
 
     @Override
     protected void initViews() {
-        System.out.println(finished);
-        if(finished){
+
+        if(finished == 1 || finished == 2){
             etanswer.setEnabled(false);
             spinneranswer.setEnabled(false);
         }
+
+        correctanswer = new TextView(getContext());
+        correctanswer.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
 
         //init constellation
         final View constellationView = getLayoutInflater().inflate(R.layout.layout_drop__down_question, null);
@@ -186,10 +202,9 @@ public class QuestionsFragment extends BaseFragment {
         constellationView.findViewById(R.id.btn_ok).setOnClickListener(v -> {
             mDropDownMenu.setTabMenuText(mConstellationAdapter.getSelectPosition() < 0 ? mHeaders[0] : "第"+mConstellationAdapter.getSelectItem()+"题");
             if(mConstellationAdapter.getSelectPosition()>=0){
+                if(finished == 0) answersubmit();
                 setQuestion(mQuestionsID[mConstellationAdapter.getSelectPosition()]);
-
             }
-
             mDropDownMenu.closeMenu();
         });
 
@@ -198,7 +213,6 @@ public class QuestionsFragment extends BaseFragment {
 
         //add item click event
         constellation.setOnItemClickListener((parent, view, position, id) -> mConstellationAdapter.setSelectPosition(position));
-
 
         ViewGroup parent = (ViewGroup) mQuestionContent.getParent();
         if (parent != null) {
@@ -216,18 +230,12 @@ public class QuestionsFragment extends BaseFragment {
         }
 
         LinearLayout linearLayout = (LinearLayout) mQuestionContent.getChildAt(0);
-        //spinneranswer.setItems(ResUtils.getStringArray(R.array.course_entry));
-        //spinneranswer.setItems(getOption(4));
-        //linearLayout.removeView(etanswer);
-        //linearLayout.addView(contentView);
         linearLayout.addView(spinneranswer);
         linearLayout.removeView(spinneranswer);
         linearLayout.addView(etanswer);
-
-
-        //linearLayout.addView(spinneranswer);
         //init dropdownview
         mDropDownMenu.setDropDownMenu(mHeaders, mPopupViews, mQuestionContent);
+
     }
 
 
@@ -278,6 +286,10 @@ public class QuestionsFragment extends BaseFragment {
             parent.removeView(etanswer);
         }
 
+        parent = (ViewGroup) correctanswer.getParent();
+        if (parent != null) {
+            parent.removeView(correctanswer);
+        }
         LinearLayout linearLayout = (LinearLayout) mQuestionContent.getChildAt(0);
 
         XHttp.get("/android/getonesquestion")
@@ -308,6 +320,10 @@ public class QuestionsFragment extends BaseFragment {
                                     break;
                                 default:break;
                             }
+                            if(finished == 2){
+                                correctanswer.setText("正确答案为"+nowquestion.getAnswer());
+                                linearLayout.addView(correctanswer);
+                            }
                         } else {
                             ToastUtils.toast("课程请求失败！");
                         }
@@ -327,5 +343,54 @@ public class QuestionsFragment extends BaseFragment {
             op[i] = (char)(65+i)+"";
         }
         return op;
+    }
+
+    //提交作业
+    private void submit(){
+        answersubmit();//提交最后一次问题
+        XHttp.post("/android/changejobstatus")
+                .params("token", TokenUtils.getToken())
+                .params("idjob", idjob)
+                .execute(new SimpleCallBack<Boolean>() {
+                    @Override
+                    public void onSuccess(Boolean response) {
+                        if (response != null && response) {
+                            ToastUtils.toast("提交成功！");
+                        } else {
+                            ToastUtils.toast("提交请求失败！");
+                        }
+                    }
+                    @Override
+                    public void onError(ApiException e) {
+                        ToastUtils.toast("提交请求错误！");
+                    }
+                });
+    }
+
+    //提交作业
+    private void answersubmit() {
+        switch (nowquestion.getType()){
+            case 1:nowquestion.setYourAnswer(etanswer.getEditValue());break;
+            case 2:nowquestion.setYourAnswer(spinneranswer.getText()+"");break;
+            default:break;
+        }
+        XHttp.post("/android/answersubmit")
+                .params("token", TokenUtils.getToken())
+                .params("idquestion", nowquestion.getID())
+                .params("youranswer",nowquestion.getYourAnswer())
+                .execute(new SimpleCallBack<Boolean>() {
+                    @Override
+                    public void onSuccess(Boolean response) {
+                        if (response != null && response) {
+                            ToastUtils.toast("成功！");
+                        } else {
+                            ToastUtils.toast("失败！");
+                        }
+                    }
+                    @Override
+                    public void onError(ApiException e) {
+                        ToastUtils.toast("错误！");
+                    }
+                });
     }
 }

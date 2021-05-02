@@ -17,6 +17,7 @@
 
 package com.ecust.projectsubmit.fragment.jobs;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +34,6 @@ import com.ecust.projectsubmit.adapter.base.delegate.SimpleDelegateAdapter;
 import com.ecust.projectsubmit.adapter.dropdownmenu.ListDropDownAdapter;
 import com.ecust.projectsubmit.adapter.entity.Job;
 import com.ecust.projectsubmit.core.BaseFragment;
-import com.ecust.projectsubmit.fragment.questions.QuestionsFragment;
 import com.ecust.projectsubmit.utils.DemoDataProvider;
 import com.ecust.projectsubmit.utils.TokenUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
@@ -50,7 +50,6 @@ import com.xuexiang.xutil.tip.ToastUtils;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -177,7 +176,10 @@ public class JobsFragment extends BaseFragment {
 
                     holder.click(R.id.card_view, v -> {
                         System.out.println(model.getTitle());
-                        openQuestions(model.getID(),model.isStatus());
+                        if(model.getStatus() == 0 ||
+                                model.getStatus() == 1 ||
+                                model.getStatus() == 2)
+                            openQuestions(model.getID(),model.getStatus());
                     });
                 }
             }
@@ -220,10 +222,19 @@ public class JobsFragment extends BaseFragment {
                                         for(Map<String,Object> x:response){
                                             //job = new Job(1,(String) x.get("title"),1,(String) x.get("duedate"),"1212",1);
 
-                                            job = new Job((int)Double.parseDouble(x.get("id").toString()),(String) x.get("title"),(int) Double.parseDouble(x.get("type").toString()),(String) x.get("duedate"),(String) x.get("createtime"),(int) Double.parseDouble(x.get("count").toString()));
-                                            if(x.get("status")!=null && (boolean)x.get("status") == true)
-                                                job.setStatus(true);
-                                            else job.setStatus(false);
+                                            job = new Job((int)Double.parseDouble(x.get("id").toString())
+                                                    ,(String) x.get("title")
+                                                    ,(int) Double.parseDouble(x.get("type").toString())
+                                                    ,(String) x.get("duedate"),(String) x.get("createtime")
+                                                    ,(int) Double.parseDouble(x.get("count").toString()));
+                                            if(x.get("status") == null || (int) Double.parseDouble(x.get("count").toString()) == 0)
+                                                job.setStatus(0);
+                                            else if((int) Double.parseDouble(x.get("count").toString()) == 1)
+                                                job.setStatus(1);
+                                            else if((int) Double.parseDouble(x.get("count").toString()) == 2)
+                                                job.setStatus(2);
+                                            else
+                                                job.setStatus(3);
                                             list.add(job);
                                         }
                                         mJobsAdapter.refresh(list);
@@ -258,13 +269,21 @@ public class JobsFragment extends BaseFragment {
     }
 
     //打开QuestionsFragment
-    private void openQuestions(int id,boolean status){
+    private void openQuestions(int id,int status){
         PageOption.to("作业")
                 .putInt("IDJOB",id)
-                .putBoolean("status",status)
+                .putInt("status",status)
+                .setRequestCode(500)
                 .setAnim(CoreAnim.fade)
                 //新建一个容器，以不影响当前容器
                 .setNewActivity(true)
                 .open(this);
+    }
+
+    @Override
+    public void onFragmentResult(int requestCode, int resultCode, Intent data) {
+        refreshLayout.autoRefresh();
+        System.out.println("1212121212121212");
+        super.onFragmentResult(requestCode, resultCode, data);
     }
 }
