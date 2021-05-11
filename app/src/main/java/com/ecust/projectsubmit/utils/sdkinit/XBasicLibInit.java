@@ -93,7 +93,8 @@ public final class XBasicLibInit {
         }
         XHttpSDK.debug(new CustomLoggingInterceptor()); //设置自定义的日志打印拦截器
         //设置网络请求的全局基础地址
-        XHttpSDK.setBaseUrl("http://192.168.31.190:8080");
+        XHttpSDK.setBaseUrl("http://192.168.31.190:8080"); //本地
+        //XHttpSDK.setBaseUrl("http://116.62.109.150:8080");//测试服务器
         //设置动态参数添加拦截器
         XHttpSDK.addInterceptor(new CustomDynamicInterceptor());
         //请求失效校验拦截器

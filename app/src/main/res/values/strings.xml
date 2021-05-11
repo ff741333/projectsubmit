@@ -69,6 +69,7 @@
     <string name="title_phone_number">手机号码</string>
     <string name="title_password">密码</string>
     <string name="title_old_password">旧密码</string>
+    <string name="title_new_password">新密码</string>
     <string name="hint_please_input_verify_code">请输入验证码</string>
     <string name="lab_verify_code">验证码</string>
     <string name="tip_password_error">密码必须是8~18位字母和数字的组合！</string>
@@ -88,4 +89,7 @@
     <string name="hint_please_input_password">请输入密码</string>
 
     <string name="default_question_text">输入两个整数 n 和 m，从数列 1，2，3……n 中随机取几个数，使其和等于m。\n要求将其中所有的可能组合列出来。</string>
+    <string name="hint_local_password">请输入旧密码</string>
+    <string name="hint_new_password">请输入新密码</string>
+    <string name="hint_repeat_password">重复输入新密码</string>
 </resources>

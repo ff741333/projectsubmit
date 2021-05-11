@@ -104,12 +104,12 @@ public class LoginFragment extends BaseFragment {
             etStudentNumber.setText(userInfo.getString("number",null));
         }
         //隐私政策弹窗
-        if (!SettingUtils.isAgreePrivacy()) {
-            Utils.showPrivacyDialog(getContext(), (dialog, which) -> {
-                dialog.dismiss();
-                SettingUtils.setIsAgreePrivacy(true);
-            });
-        }
+//        if (!SettingUtils.isAgreePrivacy()) {
+//            Utils.showPrivacyDialog(getContext(), (dialog, which) -> {
+//                dialog.dismiss();
+//                SettingUtils.setIsAgreePrivacy(true);
+//            });
+//        }
     }
 
     @SingleClick

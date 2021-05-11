@@ -73,6 +73,17 @@
                     android:textColor="?attr/xui_config_color_content_text"
                     tools:text="题目数量：" />
 
+                <TextView
+                    android:id="@+id/tv_score"
+                    style="@style/TextStyle.Explain"
+                    android:layout_marginTop="3dp"
+                    android:ellipsize="end"
+                    android:gravity="start|center_vertical"
+                    android:maxLines="2"
+                    android:singleLine="false"
+                    android:textColor="?attr/xui_config_color_content_text"
+                    tools:text="分数：" />
+
             </LinearLayout>
 
             <com.xuexiang.xui.widget.imageview.RadiusImageView

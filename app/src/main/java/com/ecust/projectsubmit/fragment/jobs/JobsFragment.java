@@ -173,7 +173,8 @@ public class JobsFragment extends BaseFragment {
                     holder.text(R.id.tv_count, "题目数量："+ model.getCount());
                     holder.text(R.id.tv_create_date, "发布时间:" + model.getCreateDate());
                     holder.text(R.id.tv_due_data, "截止日期:" + model.getDueDate());
-
+                    if(model.getStatus() == 2)
+                        holder.text(R.id.tv_score, "分数:" + model.getScore() + "/" + model.getSum());
                     holder.click(R.id.card_view, v -> {
                         System.out.println(model.getTitle());
                         if(model.getStatus() == 0 ||
@@ -226,12 +227,15 @@ public class JobsFragment extends BaseFragment {
                                                     ,(String) x.get("title")
                                                     ,(int) Double.parseDouble(x.get("type").toString())
                                                     ,(String) x.get("duedate"),(String) x.get("createtime")
-                                                    ,(int) Double.parseDouble(x.get("count").toString()));
-                                            if(x.get("status") == null || (int) Double.parseDouble(x.get("count").toString()) == 0)
+                                                    ,(int) Double.parseDouble(x.get("count").toString())
+                                                    ,(int) Double.parseDouble(x.get("sum").toString()));
+                                            if(x.get("score")!=null)
+                                                job.setScore((int) Double.parseDouble(x.get("score").toString()));
+                                            if(x.get("status") == null || (int) Double.parseDouble(x.get("status").toString()) == 0)
                                                 job.setStatus(0);
-                                            else if((int) Double.parseDouble(x.get("count").toString()) == 1)
+                                            else if((int) Double.parseDouble(x.get("status").toString()) == 1)
                                                 job.setStatus(1);
-                                            else if((int) Double.parseDouble(x.get("count").toString()) == 2)
+                                            else if((int) Double.parseDouble(x.get("status").toString()) == 2)
                                                 job.setStatus(2);
                                             else
                                                 job.setStatus(3);
@@ -239,6 +243,7 @@ public class JobsFragment extends BaseFragment {
                                         }
                                         mJobsAdapter.refresh(list);
                                     } else {
+                                        mJobsAdapter.refresh(new ArrayList<Job>());
                                         ToastUtils.toast("课程请求失败！");
                                     }
                                 }
@@ -283,7 +288,6 @@ public class JobsFragment extends BaseFragment {
     @Override
     public void onFragmentResult(int requestCode, int resultCode, Intent data) {
         refreshLayout.autoRefresh();
-        System.out.println("1212121212121212");
         super.onFragmentResult(requestCode, resultCode, data);
     }
 }

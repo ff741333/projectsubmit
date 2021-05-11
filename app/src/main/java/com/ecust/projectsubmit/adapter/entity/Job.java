@@ -58,14 +58,25 @@ public class Job {
      */
     private int Status;
 
+    /**
+     * 分数
+     */
+    private int Score;
 
-    public Job(int id, String title, int type, String duedata, String createdate,int count){
+    /**
+     * 总分
+     */
+    private int Sum;
+
+
+    public Job(int id, String title, int type, String duedata, String createdate,int count,int sum){
         this.ID = id;
         this.Title = title;
         this.Type = type;
         this.DueDate = duedata;
         this.CreateDate = createdate;
         this.Count = count;
+        this.Sum = sum;
     }
     public int getID() {
         return ID;
@@ -125,8 +136,27 @@ public class Job {
         return Status;
     }
 
-    public void setStatus(int status) {
+    public Job setStatus(int status) {
         this.Status = status;
+        return this;
+    }
+
+    public int getScore() {
+        return Score;
+    }
+
+    public Job setScore(int score) {
+        this.Score = score;
+        return this;
+    }
+
+    public int getSum() {
+        return Sum;
+    }
+
+    public Job setSum(int sum) {
+        this.Sum = sum;
+        return this;
     }
 
     @Override
@@ -139,6 +169,8 @@ public class Job {
                 ", CreateDate='" + CreateDate + '\'' +
                 ", Count='" + Count + '\'' +
                 ", Status='" + Status + '\'' +
+                ", Score='" + Score + '\'' +
+                ", Sum='" + Status + '\'' +
                 '}';
     }
 
